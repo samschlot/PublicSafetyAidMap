@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-95, 46],
+            [-95, 47],
+            [-94, 47],
+            [-94, 46],
+            [-95, 46]
+          ]
+        ]
+      },
+      "properties": { "name20": "Test City" }
+    }
+  ]
+}
+
