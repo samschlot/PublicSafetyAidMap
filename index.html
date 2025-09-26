@@ -1,26 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Minnesota Municipalities Map</title>
+  <meta charset="UTF-8">
+  <title>Minnesota Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  
+  <!-- Adobe Fonts: Gibson -->
+  <link rel="stylesheet" href="https://use.typekit.net/xxxxxxx.css"> <!-- Replace xxxxxxx with your kit ID -->
+  
   <style>
-    #map {
-      height: 100vh;
-      width: 100%;
+    html, body, #map {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Tooltip styling with Gibson font */
+    .gibson-tooltip {
+      font-family: canada-type-gibson, sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #102f4f;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 4px 8px;
+      border-radius: 4px;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- Leaflet library -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <!-- VectorGrid plugin -->
   <script src="https://unpkg.com/leaflet.vectorgrid/dist/Leaflet.VectorGrid.bundled.js"></script>
-
-  <!-- Your custom script -->
+  
+  <!-- Your JS -->
   <script src="mapscript.js"></script>
 </body>
 </html>

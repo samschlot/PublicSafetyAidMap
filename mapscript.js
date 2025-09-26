@@ -1,14 +1,12 @@
 console.log("✅ mapscript.js loaded");
 
-// Initialize map
-const map = L.map("map").setView([46.7296, -94.6859], 6);
-
-// Minimal base map (Carto Light)
-L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-  subdomains: "abcd",
-  maxZoom: 19
-}).addTo(map);
+// ================= Initialize Map =================
+const map = L.map("map", {
+  zoomSnap: 0.5,
+  minZoom: 6,
+  maxZoom: 12,
+  zoomControl: true
+}).setView([46.7296, -94.6859], 6);
 
 // Aid data object (name -> Public Safety Aid Amount)
 const aidData = {"Ada": "$75,224",
@@ -872,7 +870,7 @@ const aidData = {"Ada": "$75,224",
 
 };
 
-// Fetch GeoJSON
+// ================= Fetch GeoJSON and Render Polygons =================
 fetch("MinnesotaMunicipalities.json")
   .then(res => res.json())
   .then(data => {
@@ -884,55 +882,58 @@ fetch("MinnesotaMunicipalities.json")
       interactive: true,
       getFeatureId: f => f.properties.geoid20,
       vectorTileLayerStyles: {
-        sliced: feature => ({
-          weight: 1,
-          color: "#102f4f",   // dark blue border
-          fillColor: "#102f4f",
-          fillOpacity: 0       // transparent fill
-        })
+        sliced: {
+          weight: 2,
+          color: "#102f4f",   // light blue border
+          fill: true,
+          fillColor: "#ffff", // default white fill
+          fillOpacity: 1
+        }
       }
     }).addTo(map);
 
     // Tooltip
-    const tooltip = L.tooltip({ permanent: false, sticky: true });
+    const tooltip = L.tooltip({ permanent: false, sticky: true, className: "gibson-tooltip" });
     let lastHoveredId = null;
 
-    // Hover effect (mousemove for instant response)
+    // Smooth hover tooltip without lag
     vectorLayer.on('mousemove', e => {
       const layerId = e.layer.properties.geoid20;
-      const name = e.layer.properties.name20;
-      if (!name) return;
 
-      // Reset previous hovered polygon immediately
+      // Reset previous polygon immediately
       if (lastHoveredId && lastHoveredId !== layerId) {
         const lastLayer = vectorLayer.getFeatureById(lastHoveredId);
         if (lastLayer) vectorLayer.resetFeatureStyle(lastLayer);
       }
 
-      // Highlight current polygon
-      e.layer.setStyle({ weight: 2, color: "#ff9900" });
+      // Apply hover style
+      e.layer.setStyle({
+        fill: true,
+        fillColor: "#5ba678", // green hover
+        weight: 3              // thicker hover border
+      });
 
-      // Tooltip content includes aid data if available
+      // Instant tooltip update
+      const name = e.layer.properties.name20;
       const aidAmount = aidData[name] ? `Public Safety Aid: ${aidData[name]}` : "No aid data";
       tooltip.setContent(`${name}<br>${aidAmount}`);
       tooltip.setLatLng(e.latlng);
-      tooltip.addTo(map);
+      if (!map.hasLayer(tooltip)) tooltip.addTo(map);
 
       lastHoveredId = layerId;
     });
 
+    // Remove mouseout handler to avoid lag
     vectorLayer.on('mouseout', e => {
       vectorLayer.resetFeatureStyle(e.layer);
-      map.removeLayer(tooltip);
       lastHoveredId = null;
     });
 
-    // Fit map to bounds of all polygons
+    // Fit map to bounds and lock panning
     const bounds = L.geoJSON(data).getBounds();
     map.fitBounds(bounds);
+    map.setMaxBounds(bounds);
 
-    console.log("✅ VectorGrid polygons added with instant hover tooltip and aid data");
+    console.log("✅ VectorGrid polygons added with instant tooltip updates and hover styles");
   })
   .catch(err => console.error("❌ Error loading GeoJSON:", err));
-
-
